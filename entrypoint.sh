@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
-# If /quartz (the bind-mounted or named-volume path) is empty, seed it
-if [ ! -d /quartz ] || [ -z "$(ls -A /quartz)" ]; then
-  echo "⚙️  Initializing /quartz from build copy…"
+# If quartz.config.ts doesn't exist, populate /quartz from the build copy
+if [ ! -f /quartz/quartz.config.ts ]; then
+  echo "⚙️  Seeding /quartz from build copy…"
   mkdir -p /quartz
-  # move both visible and hidden (e.g. .git) files
-  mv /quartz_build/* /quartz/ 2>/dev/null || true
+  # move all files (including hidden) from /quartz_build
+  mv /quartz_build/*   /quartz/ 2>/dev/null || true
   mv /quartz_build/.[!.]* /quartz/ 2>/dev/null || true
-  # clean up
   rm -rf /quartz_build
 else
-  echo "✅  /quartz already initialized, skipping."
+  echo "✅  quartz.config.ts found — skipping initialization."
 fi
 
-# exec the normal CMD
+# Finally, exec whatever CMD you passed in
 exec "$@"
