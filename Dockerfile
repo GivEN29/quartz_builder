@@ -4,13 +4,8 @@ WORKDIR /app
 
 # install your app’s dependencies
 COPY package.json /app/
+RUN mkdir /quartz_build && git clone https://github.com/jackyzha0/quartz.git /quartz_build && cd /quartz_build && npm install
 RUN npm install
-
-# clone Quartz into a separate folder
-RUN mkdir /quartz_build \
- && git clone https://github.com/jackyzha0/quartz.git /quartz_build \
- && cd /quartz_build \
- && npm install
 
 #--- Final image ---
 FROM node:latest
@@ -20,6 +15,7 @@ WORKDIR /app
 # copy your app code + its node_modules
 COPY app.js package.json /app/
 COPY --from=build /app/node_modules/ /app/node_modules/
+COPY --from=build /quartz_build/ /quartz_build
 
 # bring in the entrypoint
 COPY entrypoint.sh /entrypoint.sh
