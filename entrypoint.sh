@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
-# If /quartz is empty (i.e. first time), clone & install
-if [ ! -d /quartz/.git ]; then
-  echo "⚙️  Initializing /quartz…"
-  git clone https://github.com/jackyzha0/quartz.git /quartz
-  cd /quartz
-  npm install
+# If /quartz (the bind-mounted or named-volume path) is empty, seed it
+if [ ! -d /quartz ] || [ -z "$(ls -A /quartz)" ]; then
+  echo "⚙️  Initializing /quartz from build copy…"
+  mkdir -p /quartz
+  # move both visible and hidden (e.g. .git) files
+  mv /quartz_build/* /quartz/ 2>/dev/null || true
+  mv /quartz_build/.[!.]* /quartz/ 2>/dev/null || true
+  # clean up
+  rm -rf /quartz_build
 else
-  echo "✅  /quartz already initialized"
+  echo "✅  /quartz already initialized, skipping."
 fi
 
-# Exec the normal command (so CMD still works)
+# exec the normal CMD
 exec "$@"
