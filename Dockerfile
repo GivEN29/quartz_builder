@@ -2,6 +2,11 @@
 # Use the Node.js base image
 FROM node:latest AS build
 
+WORKDIR /app
+
+COPY package.json /app
+RUN npm install
+
 #--- Use node to run app.js which will run the build job and expressJS server ---
 FROM node:latest
 
