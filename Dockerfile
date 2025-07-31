@@ -2,13 +2,6 @@
 # Use the Node.js base image
 FROM node:latest AS build
 
-# Set the working directory inside the container
-WORKDIR /app
-
-COPY package.json /app
-RUN mkdir /quartz && git clone https://github.com/jackyzha0/quartz.git /quartz && cd /quartz && npm install
-RUN npm install
-
 #--- Use node to run app.js which will run the build job and expressJS server ---
 FROM node:latest
 
@@ -22,6 +15,10 @@ WORKDIR /app
 COPY app.js package.json /app/
 COPY --from=build /quartz/ /quartz/
 COPY --from=build /app/node_modules/ /app/node_modules/
+
+# bring in the entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Set environment variables for vault and output directories
 ENV OUTPUT_DIR=/output
